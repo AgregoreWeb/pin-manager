@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<title>Pin Manager 📌</title>
+<style>
+  @import url('agregore://theme/style.csss');
+
+  :root {
+    --pin-theme-text: var(--ag-theme-text, #000);
+    --pin-theme-background: var(--ag-theme-background, #FAFAFA);
+  }
+
+  body {
+    color: var(--pin-theme-text);
+    font-family: system-ui;
+  }
+
+  input, button, select {
+    box-sizing: border-box;
+    padding: 0.5em;
+    font-size: inherit;
+    font-family: inherit;
+    border: solid 1px var(--pin-theme-text);
+    background: var(--pin-theme-background);
+  }
+  button {
+    min-width: 8em;
+  }
+  input {
+    flex: 1;
+  }
+</style>
+<script type="module">
+import "./pin-list.js"
+import "./pin-manager.js"
+</script>
+
+<h1>Pin Manager 📌</h1>
+<pin-manager></pin-manager>
