@@ -88,6 +88,7 @@ export class PinManager extends HTMLElement {
   get existing () {
     const services = []
     for (const list of this.lists) {
+      if (!list.isValid()) continue
       services.push(list.toJSON())
     }
     return services

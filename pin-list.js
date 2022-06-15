@@ -1,7 +1,7 @@
 /* global HTMLElement, customElements, CustomEvent, alert */
 import injectCSS from './injectCSS.js'
 
-import { IPFSPins, IPNSPins } from './ipfs.js'
+import { IPFSPinningServiceAPI, IPFSClusterAPI } from './ipfs.js'
 
 export const HIDDEN = 'pin-list-hidden'
 
@@ -29,6 +29,9 @@ pin-list .pin-list-loading {
   padding: 1em;
   text-align: center;
 }
+.pin-list-delete {
+  min-width: 0px;
+}
 `
 
 export class PinList extends HTMLElement {
@@ -45,10 +48,13 @@ export class PinList extends HTMLElement {
         <span>
           Pin List for <input class="pin-list-service-label"/>
           <select class="pin-list-protocol-select">
-            <option value="ipfs">IPFS://</option>
-            <option value="ipns">IPNS://</option>
+            <option value="ipfs">IPFS Pins</option>
+            <option value="ipns">Cluster</option>
           </select>
           <a class="pin-list-link" title="Link to invite for this service">🔗</a>
+          <button class="pin-list-delete" title="Delete this pinning service">
+            🗑
+          </button>
         </span>
         <button class="pin-list-refresh">Refresh 🗘</button>
       </div>
@@ -69,6 +75,12 @@ export class PinList extends HTMLElement {
     this.protocolSelect.addEventListener('change', () => {
       this.protocol = this.protocolSelect.value
     })
+    this.serviceLabel.addEventListener('change', () => {
+      this.service = this.serviceLabel.value
+    })
+    this.deleteButton.addEventListener('click', () => {
+      this.parentElement.removeChild(this)
+    })
   }
 
   // If you just changed the auth token, refresh manually
@@ -88,6 +100,7 @@ export class PinList extends HTMLElement {
     this.initialize()
     this.updateLink()
     if (name === 'service') {
+      if (this.serviceLabel.value === newValue) return
       this.serviceLabel.value = newValue
     }
     if (name === 'protocol') {
@@ -126,6 +139,10 @@ export class PinList extends HTMLElement {
 
   get addButton () {
     return this.querySelector('.pin-list-add')
+  }
+
+  get deleteButton () {
+    return this.querySelector('.pin-list-delete')
   }
 
   get addForm () {
@@ -172,7 +189,7 @@ export class PinList extends HTMLElement {
   async remove (url) {
     this.setLoading(true)
     try {
-      await this.api.remove(url)
+      await this.api.delete(url)
       await this.refresh()
     } catch (e) {
       alert(`Unable to remove: ${e.stack}`)
@@ -203,9 +220,9 @@ export class PinList extends HTMLElement {
 
   get api () {
     if (this.protocol === 'ipfs') {
-      return new IPFSPins(this.service, this.auth)
+      return new IPFSPinningServiceAPI(this.service, this.auth)
     } else if (this.protocol === 'ipns') {
-      return new IPNSPins(this.service, this.auth)
+      return new IPFSClusterAPI(this.service, this.auth)
     } else {
       throw new Error(`Unknown protocol: ${this.protocol}`)
     }
@@ -223,7 +240,7 @@ export class PinList extends HTMLElement {
       const item = document.createElement('pin-item')
       item.url = url
       item.addEventListener('remove', () => {
-        this.api.remove(url)
+        this.remove(url)
       })
       return item
     }))
@@ -243,6 +260,10 @@ export class PinList extends HTMLElement {
     this.urlInput.disabled = loading
     this.addButton.disabled = loading
     this.loader.classList.toggle(HIDDEN, !loading)
+  }
+
+  isValid () {
+    return this.service && this.service !== 'null'
   }
 
   toJSON () {
@@ -303,7 +324,7 @@ export class PinItem extends HTMLElement {
   #render () {
     const link = this.querySelector('a')
     const url = this.url
-    link.setAttribute('src', url)
+    link.setAttribute('href', url)
     link.innerText = url
   }
 }
