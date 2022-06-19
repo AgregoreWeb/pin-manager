@@ -8,7 +8,7 @@ export class IPFSPinningServiceAPI {
   }
 
   #prepReqestData () {
-    const url = new URL('./pins', this.service)
+    const url = new URL('./pins/', this.service)
     const headers = new Headers()
     if (url.username && url.password) {
       const encoded = btoa(`${url.username}:${url.password}`)
@@ -16,7 +16,15 @@ export class IPFSPinningServiceAPI {
       headers.append('Authorization', auth)
       url.username = ''
       url.password = ''
+    } else if (url.password) {
+      // If we just have a password, it's for a bearer token
+      const token = url.password
+      const auth = `Bearer ${token}`
+      headers.append('Authorization', auth)
+      url.password = ''
     }
+
+    url.searchParams.append('status', 'queued,pinning,pinned')
 
     const requestURL = url.href
 
@@ -44,7 +52,7 @@ export class IPFSPinningServiceAPI {
   }
 
   async create (url, { name = url, origins, meta } = {}) {
-    const cid = urlToCID(url)
+    const cid = urlToCID('ipfs', url)
     const params = {
       cid, name, origins, meta
     }
@@ -68,10 +76,10 @@ export class IPFSPinningServiceAPI {
   }
 
   async get (url) {
-    const getCID = urlToCID(url)
+    const getCID = urlToCID('ipfs', url)
     const list = await this.list(url)
 
-    return list.filter(({ cid }) => cid === getCID)
+    return list.find(({ cid }) => cid === getCID)
   }
 
   async delete (url) {
@@ -98,7 +106,7 @@ export class IPFSClusterAPI {
     this.authToken = authToken
   }
 
-  #prepReqestData (forURL = "") {
+  #prepReqestData (forURL = '') {
     let url = new URL('./pins/', this.service)
     const headers = new Headers()
     if (url.username && url.password) {
@@ -109,7 +117,7 @@ export class IPFSClusterAPI {
       url.password = ''
     }
 
-    if(forURL) {
+    if (forURL) {
       const path = urlToPath(forURL)
       url = new URL('.' + path, url.href)
     }
@@ -133,7 +141,6 @@ export class IPFSClusterAPI {
     // The reponse will be a JSON-ND format (which isn't documented?)
     // i.e. there are JSON blobs separated by newlines
     const raw = await response.text()
-    console.log('Got raw response', raw, raw.split('\n'))
     const results = raw
       .split('\n')
       .filter((chunk) => chunk.trim())
@@ -183,7 +190,7 @@ export class IPFSClusterAPI {
 
   async get (url) {
     const { requestURL, headers } = this.#prepReqestData(url)
-    const response = await fetch(requestURL, {headers})
+    const response = await fetch(requestURL, { headers })
 
     if (!response.ok) {
       throw new Error(await response.text())
@@ -195,7 +202,7 @@ export class IPFSClusterAPI {
     const { requestURL, headers } = this.#prepReqestData(url)
     const response = await fetch(requestURL, {
       headers,
-      method: "DELETE"
+      method: 'DELETE'
     })
 
     if (!response.ok) {
