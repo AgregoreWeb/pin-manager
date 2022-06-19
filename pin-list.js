@@ -47,7 +47,7 @@ export class PinList extends HTMLElement {
       <div class="pin-list-spread">
         <span>
           Pin List for <input class="pin-list-service-label"/>
-          <select class="pin-list-protocol-select">
+          <select class="pin-list-protocol-select" title="Select a pinning service format" value="${this.protocol || 'ipfs'}">
             <option value="ipfs">IPFS Pins</option>
             <option value="ipns">Cluster</option>
           </select>

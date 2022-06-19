@@ -28,6 +28,10 @@
   input {
     flex: 1;
   }
+
+  details {
+    margin-bottom: 1em;
+  }
 </style>
 <script type="module">
 import "./pin-list.js"
@@ -35,4 +39,23 @@ import "./pin-manager.js"
 </script>
 
 <h1>Pin Manager 📌</h1>
+<details>
+  <summary>How does this work?</summary>
+  <p>
+    The Pin Manager lets you talk to multiple "IPFS Pinning Services at a time.
+    These services exist as remote backups for your data.
+    Currently we support the <a href="https://ipfs.github.io/pinning-services-api-spec/">IPFS Pinning Service API Specification</a> and the <a href="https://ipfscluster.io/">IPFS Cluster API Specification</a>.
+  </p>
+  <p>
+    When configuring an IPFS pinning service, place the <code>Authentication Token</code> into the password section of the URL.
+    For example, this could look like <a href="">https://:YourTokenHere@example.com/</a>.
+    Some services like IPFS cluster use "Basic Authentication" which means you will need to supply both a username and password.
+    Make sure you're putting your services behind an HTTPs gateway so that you don't expose your credentials to the network!
+  </P
+  <p>
+    If you are running a service and would like to quickly onboard new users into it, you can click the "link" in the service information and send it to somebody.
+    This link will contain a special "invite" parameter which will automatically configure pin-manager to use the service info when a person visits it.
+    Note that these links are not revokable, so make sure you only share them via trusted channels!
+  </p>
+</details>
 <pin-manager></pin-manager>
