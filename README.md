@@ -2,7 +2,7 @@
 
 Manage pinning services for IPFS and IPNS URLs.
 
-https://https://agregoreweb.github.io/pin-manager/index.html
+https://agregoreweb.github.io/pin-manager/index.html
 
 - Track multiple services
 - Choose between IPFS pinning and IPNS with IPFS Cluster
